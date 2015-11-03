@@ -130,5 +130,5 @@ print(np.max(dists2))
 
 f = open(outfile, "w")
 for i in range(ntel):
-    f.write("{0:6.1f} {1:6.1f}".format(xc[i],yc[i]))
+    f.write("{0:6.1f} {1:6.1f}\n".format(xc[i],yc[i]))
 f.close()
