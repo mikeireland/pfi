@@ -1,18 +1,19 @@
-#This plots an example 30 telescope array.
+"""This plots an example 30 telescope array, in a near-Y configuration"""
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import scipy.signal as sig
 
 dl = 82.2
 dphi = np.radians(10)
-l = 2**(arange(10)*0.5) * dl
+l = 2**(np.arange(10)*0.5) * dl
 xc = np.zeros(10)
 yc = np.zeros(10)
 phi = 0
 xc[0] = dl/np.sqrt(3)
 for i in range(1,10):
-  xc[i] = xc[i-1] + l[i-1]*cos(phi)
-  yc[i] = yc[i-1] + l[i-1]*sin(phi)
+  xc[i] = xc[i-1] + l[i-1]*np.cos(phi)
+  yc[i] = yc[i-1] + l[i-1]*np.sin(phi)
   phi += dphi
 xy = np.array([xc,yc])  
 R = np.array([[-0.5,np.sqrt(3)/2],[-np.sqrt(3)/2,-0.5]])
@@ -35,7 +36,7 @@ plt.clf()
 plt.imshow(np.minimum(a,1), cmap=cm.gray, interpolation='nearest')
 im = np.fft.fft2(test)
 im = np.abs(im)**2
-imshow(np.fft.fftshift(np.minimum(im,410000)), interpolation='nearest')
+plt.imshow(np.fft.fftshift(np.minimum(im,410000)), interpolation='nearest')
 
 f = plt.figure(2)
 f.clf()
@@ -43,3 +44,4 @@ ax = f.add_subplot(111, aspect='equal')
 ax.plot(yc,xc,'o')
 ax.set_xlabel('X position (m)')
 ax.set_ylabel('Y position (m)')
+plt.show()

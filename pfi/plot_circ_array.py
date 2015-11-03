@@ -1,17 +1,15 @@
-#This plots an example 30 telescope array.
+"""A script to plot a circular array geometry with 20 telescopes, and output the array elements"""
 
 from __future__ import print_function, division
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import scipy.signal as sig
-"""A script to plot a circular array geometry, and output the array elements"""
 
 import scipy.ndimage as nd
 import pdb
 
-plt.ion()
-
+#Parameters here
 outfile = "circ_array.txt"
 ntel = 20
 short_bl = 600
@@ -20,6 +18,7 @@ jitter = -1 ## 400 ##-1 for redundant arrays...
 extra_jitter = 20
 r_circ = ntel*short_bl/2.0/np.pi
 dphi = 2.0*np.pi/ntel
+wave=11e-6  #Wavelength in m
 
 xc = np.zeros(ntel)
 yc = np.zeros(ntel)
@@ -30,8 +29,9 @@ zooms = [1.02,1.04,1.06,1.08,1.10]
 sz = 1024
 ring_rad = 0.15/140.
 ring_flux = 2.5 #Ratio of ring to star
-#-----
-fov = np.degrees(11e-6/fov_bl)*3600.
+
+#----- Automatic from here ------
+fov = np.degrees(wave/fov_bl)*3600.
 
 for i in range(ntel):
     #f(r) = 2r
@@ -132,3 +132,5 @@ f = open(outfile, "w")
 for i in range(ntel):
     f.write("{0:6.1f} {1:6.1f}\n".format(xc[i],yc[i]))
 f.close()
+
+plt.show()
