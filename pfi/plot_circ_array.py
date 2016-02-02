@@ -134,3 +134,6 @@ for i in range(ntel):
 f.close()
 
 plt.show()
+
+#Save the circular array.
+np.savetxt('circ_array.txt',np.array( [xc,yc] ).T,fmt="%.1f")
