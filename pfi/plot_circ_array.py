@@ -33,6 +33,7 @@ ring_flux = 2.5 #Ratio of ring to star
 #----- Automatic from here ------
 fov = np.degrees(wave/fov_bl)*3600.
 
+#Create the telescope positions xc and yc.
 for i in range(ntel):
     #f(r) = 2r
     #int[f(r)] = r^2
@@ -59,13 +60,15 @@ for i in range(ntel):
     xc[i] += np.random.normal()*extra_jitter
     yc[i] += np.random.normal()*extra_jitter
 
+#Add these telescopes to a UV plane.
+uv_tel = np.zeros((sz,sz))
+uv_tel[(xc/fov_bl).astype(int) + sz//2,(yc/fov_bl).astype(int) + sz//2]=1
 
-uv = np.zeros((sz,sz))
-uv[(xc/fov_bl).astype(int) + sz//2,(yc/fov_bl).astype(int) + sz//2]=1
+#Create a uv plane from this
+uv = np.fft.fftshift(np.abs(np.fft.ifft2(np.abs(np.fft.fft2(uv_tel))**2)))
+a = sig.convolve(uv,[[0.5,1,0.5],[1,1,1],[0.5,1,0.5]], mode='same')
 
-test = np.fft.fftshift(np.abs(np.fft.ifft2(np.abs(np.fft.fft2(uv))**2)))
-a = sig.convolve(test,[[0.5,1,0.5],[1,1,1],[0.5,1,0.5]], mode='same')
-
+#Now create a uv plane with sky rotation.
 a0 = a.copy()
 for i in range(1,nrot):
     a += nd.interpolation.rotate(a0, rotdeg*i, reshape=False, order=1)
@@ -89,22 +92,25 @@ ax1.set_yticks([])
 f3 = plt.figure(3)
 f3.clf()
 ax = f3.add_subplot(111, aspect='equal')
-im = np.fft.fft2(a)
-im = np.abs(im)**2
-im /= np.max(im)
+im_psf = np.fft.fft2(a)
+im_psf = np.abs(im_psf)**2
+im_psf /= np.max(im_psf)
+
 nth=100
 thetas = np.arange(nth)/nth*2*np.pi
-imring = np.zeros(im.shape)
+imring = np.zeros(im_psf.shape)
 for theta in thetas:
     xd = int(sz//2 + 0.8*ring_rad/(fov/sz)*np.cos(theta))
     yd = int(sz//2 + ring_rad/(fov/sz)*np.sin(theta))
     imring[xd,yd] += ring_flux/nth
 
-imring = np.fft.irfft2(np.fft.rfft2(imring)*np.fft.rfft2(np.fft.fftshift(im)))
+#Convolve the ring image with the PSF.
+imring = np.fft.irfft2(np.fft.rfft2(imring)*np.fft.rfft2(np.fft.fftshift(im_psf)))
 
-#For a planet of circumstellar disk magnitude 11.5 and star of magnitude 8.5, we get:
-im += np.roll(np.roll(im,int(0.035/fov*sz/np.sqrt(2)), axis=1),int(0.035/fov*sz/np.sqrt(2)), axis=0)*10**(-0.4*3.0)
-
+#For a planet of circumstellar disk magnitude 11.5 and star of magnitude 8.5, we 
+#just add a copy of the PSF and add a copy of the ring.
+im = im_psf.copy()
+im += np.roll(np.roll(im_psf,int(0.035/fov*sz/np.sqrt(2)), axis=1),int(0.035/fov*sz/np.sqrt(2)), axis=0)*10**(-0.4*3.0)
 im += imring
 
 iml = np.log10(np.maximum(im,1e-4))
@@ -112,7 +118,7 @@ plt.imshow(np.fft.fftshift(iml), interpolation='nearest', cmap=cm.gist_heat, ext
 #plt.axis([512-200,512+200,512-200,512+200])
 plt.colorbar()
 ax.set_xlabel('Delta RA (arcsec)')
-ax.set_ylabel('Delta RA (arcsec)')
+ax.set_ylabel('Delta Dec (arcsec)')
 
 
 f2 = plt.figure(2)
