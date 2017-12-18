@@ -11,11 +11,11 @@ import pdb
 
 #Parameters here
 outfile = "circ_array.txt"
-ntel = 20
-short_bl = 600
+ntel = 12
+short_bl = 550
 fov_bl = 30 #To define the field of view.
 jitter = -1 ## 400 ##-1 for redundant arrays...
-extra_jitter = 20
+extra_jitter = 5
 r_circ = ntel*short_bl/2.0/np.pi
 dphi = 2.0*np.pi/ntel
 wave=11e-6  #Wavelength in m
@@ -23,7 +23,7 @@ wave=11e-6  #Wavelength in m
 xc = np.zeros(ntel)
 yc = np.zeros(ntel)
 
-nrot = 35
+nrot = 59
 rotdeg = 1
 zooms = [1.02,1.04,1.06,1.08,1.10]
 sz = 1024
